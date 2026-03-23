@@ -1,0 +1,9 @@
+{
+    "pluginAPI": "2.0.0",
+    "id": "com.tfdidesign.example",
+    "name": "Example Plugin",
+    "version": "1.0.0",
+    "type": "user",
+    "description": "An example plugin for smartCARS Pro",
+    "availableSettings": {}
+}

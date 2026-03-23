@@ -1,0 +1,15 @@
+{
+    "compilerOptions": {
+        "target": "esnext",
+        "module": "commonjs",
+        "outDir": "./build",
+        "esModuleInterop": true,
+        "forceConsistentCasingInFileNames": true,
+        "strict": true,
+        "noImplicitAny": false,
+        "skipLibCheck": true,
+        "resolveJsonModule": true,
+        "isolatedModules": true,
+        "lib": ["dom", "dom.iterable", "esnext"]
+    }
+}
