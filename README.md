@@ -7,6 +7,7 @@ A reference plugin for smartCARS demonstrating both background (server-side) and
 ```
 /
   plugin.json          — plugin manifest (id, version, metadata)
+  pack.js              — build and distribution script (no external dependencies)
   background/          — background module (runs in the main process as a worker thread)
   ui/                  — UI module (rendered inside the app as an iframe)
 ```
@@ -130,3 +131,48 @@ This produces a static bundle in `dist/` via Vite.
 - The UI module runs in a sandboxed iframe — it does not have direct access to Electron APIs or the main process.
 - To communicate with background handlers, make HTTP requests to `http://localhost:7172/api/:pluginId/:handlerName`.
 - To subscribe to real-time events, connect to the event bus WebSocket at `ws://localhost:7173`.
+
+## pack.js
+
+`pack.js` is a cross-platform Node.js script (no external dependencies) for building and distributing your plugin. It works on Windows, macOS, and Linux.
+
+### Setup
+
+If you created this plugin via the **Dev Center → Create Plugin** flow, `SMARTCARS_PLUGINS_DIR` in `pack.js` is already set to your local smartCARS plugins directory. You can use `--install` immediately.
+
+If you set up the plugin manually, open `pack.js` and replace the placeholder value:
+
+```js
+const SMARTCARS_PLUGINS_DIR = '/absolute/path/to/smartcars/app/out/plugins';
+```
+
+### Usage
+
+```sh
+# Create a distributable ZIP (<id>-<version>.zip) in the plugin directory
+node pack.js
+
+# Create the ZIP in a specific output directory
+node pack.js --out ./dist
+
+# Run npm builds (background + UI) before creating the ZIP
+node pack.js --build
+
+# Copy the built plugin directly into the smartCARS plugins directory
+node pack.js --install
+
+# Full dev workflow: build everything, then install into smartCARS
+node pack.js --build --install
+```
+
+### What gets packaged
+
+| Path in ZIP | Source |
+|---|---|
+| `plugin.json` | `plugin.json` |
+| `background/index.js` | `background/build/index.js` |
+| `background/openapi.json` | `background/build/openapi.json` (if present) |
+| `background/node_modules/` | `background/node_modules/` (only if runtime `dependencies` are declared in `background/package.json`) |
+| `ui/` | `ui/dist/` (if the plugin has a UI) |
+
+The resulting ZIP is accepted by the **Dev Center → Install Plugin from ZIP** feature.
