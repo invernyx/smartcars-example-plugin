@@ -167,12 +167,12 @@ node pack.js --build --install
 
 ### What gets packaged
 
-| Path in ZIP | Source |
-|---|---|
-| `plugin.json` | `plugin.json` |
-| `background/index.js` | `background/build/index.js` |
-| `background/openapi.json` | `background/build/openapi.json` (if present) |
+| Path in ZIP                | Source                                                                                                |
+| -------------------------- | ----------------------------------------------------------------------------------------------------- |
+| `plugin.json`              | `plugin.json`                                                                                         |
+| `background/index.js`      | `background/build/index.js`                                                                           |
+| `background/openapi.json`  | `background/build/openapi.json` (if present)                                                          |
 | `background/node_modules/` | `background/node_modules/` (only if runtime `dependencies` are declared in `background/package.json`) |
-| `ui/` | `ui/dist/` (if the plugin has a UI) |
+| `ui/`                      | `ui/dist/` (if the plugin has a UI)                                                                   |
 
 The resulting ZIP is accepted by the **Dev Center → Install Plugin from ZIP** feature.

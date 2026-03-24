@@ -41,7 +41,7 @@ const CRC_TABLE = (() => {
     for (let i = 0; i < 256; i++) {
         let c = i;
         for (let j = 0; j < 8; j++) {
-            c = c & 1 ? (0xedb88320 ^ (c >>> 1)) : (c >>> 1);
+            c = c & 1 ? 0xedb88320 ^ (c >>> 1) : c >>> 1;
         }
         table[i] = c;
     }
@@ -73,17 +73,17 @@ class ZipBuilder {
 
         // Local file header (30 bytes fixed + filename)
         const local = Buffer.alloc(30 + nameBuffer.length);
-        local.writeUInt32LE(0x04034b50, 0);          // Local file header signature
-        local.writeUInt16LE(20, 4);                   // Version needed to extract (2.0)
-        local.writeUInt16LE(0, 6);                    // General purpose bit flag
-        local.writeUInt16LE(8, 8);                    // Compression method: deflate
-        local.writeUInt16LE(0, 10);                   // Last mod file time
-        local.writeUInt16LE(0, 12);                   // Last mod file date
-        local.writeUInt32LE(checksum, 14);            // CRC-32
-        local.writeUInt32LE(compressed.length, 18);   // Compressed size
-        local.writeUInt32LE(data.length, 22);         // Uncompressed size
-        local.writeUInt16LE(nameBuffer.length, 26);   // Filename length
-        local.writeUInt16LE(0, 28);                   // Extra field length
+        local.writeUInt32LE(0x04034b50, 0); // Local file header signature
+        local.writeUInt16LE(20, 4); // Version needed to extract (2.0)
+        local.writeUInt16LE(0, 6); // General purpose bit flag
+        local.writeUInt16LE(8, 8); // Compression method: deflate
+        local.writeUInt16LE(0, 10); // Last mod file time
+        local.writeUInt16LE(0, 12); // Last mod file date
+        local.writeUInt32LE(checksum, 14); // CRC-32
+        local.writeUInt32LE(compressed.length, 18); // Compressed size
+        local.writeUInt32LE(data.length, 22); // Uncompressed size
+        local.writeUInt16LE(nameBuffer.length, 26); // Filename length
+        local.writeUInt16LE(0, 28); // Extra field length
         nameBuffer.copy(local, 30);
 
         this._entries.push({
@@ -108,23 +108,23 @@ class ZipBuilder {
 
             // Central directory file header (46 bytes fixed + filename)
             const central = Buffer.alloc(46 + nameBuffer.length);
-            central.writeUInt32LE(0x02014b50, 0);        // Central directory file header signature
-            central.writeUInt16LE(20, 4);                 // Version made by
-            central.writeUInt16LE(20, 6);                 // Version needed to extract
-            central.writeUInt16LE(0, 8);                  // General purpose bit flag
-            central.writeUInt16LE(8, 10);                 // Compression method: deflate
-            central.writeUInt16LE(0, 12);                 // Last mod file time
-            central.writeUInt16LE(0, 14);                 // Last mod file date
-            central.writeUInt32LE(checksum, 16);          // CRC-32
-            central.writeUInt32LE(compressedSize, 20);    // Compressed size
-            central.writeUInt32LE(uncompressedSize, 24);  // Uncompressed size
+            central.writeUInt32LE(0x02014b50, 0); // Central directory file header signature
+            central.writeUInt16LE(20, 4); // Version made by
+            central.writeUInt16LE(20, 6); // Version needed to extract
+            central.writeUInt16LE(0, 8); // General purpose bit flag
+            central.writeUInt16LE(8, 10); // Compression method: deflate
+            central.writeUInt16LE(0, 12); // Last mod file time
+            central.writeUInt16LE(0, 14); // Last mod file date
+            central.writeUInt32LE(checksum, 16); // CRC-32
+            central.writeUInt32LE(compressedSize, 20); // Compressed size
+            central.writeUInt32LE(uncompressedSize, 24); // Uncompressed size
             central.writeUInt16LE(nameBuffer.length, 28); // Filename length
-            central.writeUInt16LE(0, 30);                 // Extra field length
-            central.writeUInt16LE(0, 32);                 // File comment length
-            central.writeUInt16LE(0, 34);                 // Disk number start
-            central.writeUInt16LE(0, 36);                 // Internal file attributes
-            central.writeUInt32LE(0, 38);                 // External file attributes
-            central.writeUInt32LE(offset, 42);            // Relative offset of local file header
+            central.writeUInt16LE(0, 30); // Extra field length
+            central.writeUInt16LE(0, 32); // File comment length
+            central.writeUInt16LE(0, 34); // Disk number start
+            central.writeUInt16LE(0, 36); // Internal file attributes
+            central.writeUInt32LE(0, 38); // External file attributes
+            central.writeUInt32LE(offset, 42); // Relative offset of local file header
             nameBuffer.copy(central, 46);
 
             centralParts.push(central);
@@ -134,14 +134,14 @@ class ZipBuilder {
 
         // End of central directory record (22 bytes)
         const eocd = Buffer.alloc(22);
-        eocd.writeUInt32LE(0x06054b50, 0);              // End of central directory signature
-        eocd.writeUInt16LE(0, 4);                        // Number of this disk
-        eocd.writeUInt16LE(0, 6);                        // Disk where central directory starts
-        eocd.writeUInt16LE(this._entries.length, 8);     // Central directory records on this disk
-        eocd.writeUInt16LE(this._entries.length, 10);    // Total central directory records
-        eocd.writeUInt32LE(centralDirSize, 12);          // Size of central directory (bytes)
-        eocd.writeUInt32LE(centralDirOffset, 16);        // Offset of start of central directory
-        eocd.writeUInt16LE(0, 20);                       // Comment length
+        eocd.writeUInt32LE(0x06054b50, 0); // End of central directory signature
+        eocd.writeUInt16LE(0, 4); // Number of this disk
+        eocd.writeUInt16LE(0, 6); // Disk where central directory starts
+        eocd.writeUInt16LE(this._entries.length, 8); // Central directory records on this disk
+        eocd.writeUInt16LE(this._entries.length, 10); // Total central directory records
+        eocd.writeUInt32LE(centralDirSize, 12); // Size of central directory (bytes)
+        eocd.writeUInt32LE(centralDirOffset, 16); // Offset of start of central directory
+        eocd.writeUInt16LE(0, 20); // Comment length
 
         return Buffer.concat([...this._localParts, ...centralParts, eocd]);
     }
@@ -211,9 +211,7 @@ function runBuild(dir, label) {
 function installPlugin(manifest, hasBackground, hasUi) {
     if (SMARTCARS_PLUGINS_DIR === '__SMARTCARS_PLUGINS_DIR__') {
         console.error('Error: SMARTCARS_PLUGINS_DIR has not been configured.');
-        console.error(
-            '  Open pack.js and replace the placeholder with the absolute path to your',
-        );
+        console.error('  Open pack.js and replace the placeholder with the absolute path to your');
         console.error('  smartCARS plugins directory (e.g. /path/to/app/out/plugins).');
         process.exit(1);
     }
