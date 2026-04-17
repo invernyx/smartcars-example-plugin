@@ -195,6 +195,17 @@ function parseArgs(argv) {
 
 // ─── Build step ───────────────────────────────────────────────────────────────
 
+function runInstall(dir, label) {
+    console.log(`  Installing dependencies for ${label}...`);
+    const result = spawnSync(NPM, ['install'], { cwd: dir, stdio: 'inherit' });
+    if (result.error) {
+        throw new Error(`Failed to spawn npm: ${result.error.message}`);
+    }
+    if (result.status !== 0) {
+        throw new Error(`npm install failed for ${label} (exit code ${result.status})`);
+    }
+}
+
 function runBuild(dir, label) {
     console.log(`  Building ${label}...`);
     const result = spawnSync(NPM, ['run', 'build'], { cwd: dir, stdio: 'inherit' });
@@ -342,6 +353,8 @@ function main() {
     if (shouldBuild) {
         console.log(`Building: ${id} v${version}`);
         try {
+            if (hasBackground) runInstall(path.join(PLUGIN_DIR, 'background'), 'background');
+            if (hasUi) runInstall(path.join(PLUGIN_DIR, 'ui'), 'ui');
             if (hasBackground) runBuild(path.join(PLUGIN_DIR, 'background'), 'background');
             if (hasUi) runBuild(path.join(PLUGIN_DIR, 'ui'), 'ui');
         } catch (err) {
