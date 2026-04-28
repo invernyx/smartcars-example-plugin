@@ -1,12 +1,9 @@
 {
     "name": "com.tfdidesign.example",
     "scripts": {
-        "build": "npx --yes webpack --config webpack.config.js"
+        "build": "node build.js"
     },
     "devDependencies": {
-        "ts-loader": "^9.5.1",
-        "typescript": "^5.8.3",
-        "webpack": "^5.94.0",
-        "webpack-cli": "^5.1.4"
+        "esbuild": "^0.28.0"
     }
 }
