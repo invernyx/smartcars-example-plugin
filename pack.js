@@ -206,11 +206,51 @@ function runInstall(dir, label) {
     }
 }
 
+/**
+ * Resolve a CLI command to its JS entry point inside node_modules.
+ * Returns an absolute path suitable for `process.execPath`, or null if not found.
+ */
+function resolveLocalBin(dir, cmd) {
+    const pkgPath = path.join(dir, 'node_modules', cmd, 'package.json');
+    if (!fs.existsSync(pkgPath)) return null;
+    try {
+        const pkg = JSON.parse(fs.readFileSync(pkgPath, 'utf-8'));
+        const bin = pkg.bin;
+        if (!bin) return null;
+        const rel = typeof bin === 'string' ? bin : bin[cmd];
+        if (!rel) return null;
+        return path.resolve(path.dirname(pkgPath), rel);
+    } catch {
+        return null;
+    }
+}
+
 function runBuild(dir, label) {
     console.log(`  Building ${label}...`);
-    const result = spawnSync(NPM, ['run', 'build'], { cwd: dir, stdio: 'inherit', shell: true });
+    const pkg = JSON.parse(fs.readFileSync(path.join(dir, 'package.json'), 'utf-8'));
+    const buildScript = pkg.scripts && pkg.scripts.build;
+    if (!buildScript) {
+        throw new Error(`No build script found in package.json for ${label}`);
+    }
+
+    const [cmd, ...scriptArgs] = buildScript.trim().split(/\s+/);
+
+    let result;
+    if (cmd === 'node') {
+        // Script is a plain Node.js file — run it directly, no PATH lookup needed.
+        const scriptPath = path.resolve(dir, scriptArgs[0]);
+        result = spawnSync(process.execPath, [scriptPath, ...scriptArgs.slice(1)], { cwd: dir, stdio: 'inherit' });
+    } else {
+        const binScript = resolveLocalBin(dir, cmd);
+        if (binScript) {
+            result = spawnSync(process.execPath, [binScript, ...scriptArgs], { cwd: dir, stdio: 'inherit' });
+        } else {
+            result = spawnSync(NPM, ['run', 'build'], { cwd: dir, stdio: 'inherit', shell: true });
+        }
+    }
+
     if (result.error) {
-        throw new Error(`Failed to spawn npm: ${result.error.message}`);
+        throw new Error(`Failed to run build for ${label}: ${result.error.message}`);
     }
     if (result.status !== 0) {
         throw new Error(`Build failed for ${label} (exit code ${result.status})`);
