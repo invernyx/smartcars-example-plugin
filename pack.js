@@ -197,7 +197,7 @@ function parseArgs(argv) {
 
 function runInstall(dir, label) {
     console.log(`  Installing dependencies for ${label}...`);
-    const result = spawnSync(NPM, ['install'], { cwd: dir, stdio: 'inherit' });
+    const result = spawnSync(NPM, ['install'], { cwd: dir, stdio: 'inherit', shell: true });
     if (result.error) {
         throw new Error(`Failed to spawn npm: ${result.error.message}`);
     }
@@ -208,7 +208,7 @@ function runInstall(dir, label) {
 
 function runBuild(dir, label) {
     console.log(`  Building ${label}...`);
-    const result = spawnSync(NPM, ['run', 'build'], { cwd: dir, stdio: 'inherit' });
+    const result = spawnSync(NPM, ['run', 'build'], { cwd: dir, stdio: 'inherit', shell: true });
     if (result.error) {
         throw new Error(`Failed to spawn npm: ${result.error.message}`);
     }
